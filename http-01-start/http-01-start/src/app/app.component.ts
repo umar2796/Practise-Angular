@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Post } from './post.model';
+import { map } from 'rxjs/operators';
+import { PostsService } from './posts.service';
 
 @Component({
   selector: 'app-root',
@@ -7,22 +10,54 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  loadedPosts = [];
+  loadedPosts: Post[] = [];
+  isFetching = false;
+  error = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient , private postServe : PostsService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.isFetching = true;
+    this.postServe.FetchPosts().subscribe(
+      posts => {
+        this.isFetching = false;
+        this.loadedPosts = posts;
+      }, 
+      error => {
+        this.error = error.message
+      }
+    );
+  }
 
-  onCreatePost(postData: { title: string; content: string }) {
+
+    onCreatePost(postData: Post) {
     // Send Http request
-    console.log(postData);
+      this.postServe.CreateAndStorepost(postData.title, postData.content)
+   
   }
 
   onFetchPosts() {
-    // Send Http request
+    this.isFetching = true;
+    this.postServe.FetchPosts().subscribe(
+      posts => {
+        this.isFetching = false;
+        this.loadedPosts = posts;
+      }, 
+      error => {
+        this.error = error.message
+      }
+    );
   }
 
   onClearPosts() {
-    // Send Http request
+  this.postServe.DeletePosts().subscribe(
+    () =>{
+      this.loadedPosts = [];
+    }
+  )
   }
+
+
 }
+
+
