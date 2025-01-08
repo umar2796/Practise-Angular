@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
   this.postServe.DeletePosts().subscribe(
     () =>{
       this.loadedPosts = [];
-    }
+    } 
   )
   }
 
